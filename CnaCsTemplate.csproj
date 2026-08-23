@@ -11,10 +11,12 @@
          portability harness; generated games can delete the unused conditional groups. -->
     <Engine Condition="'$(Engine)' == ''">CNA</Engine>
 
+<!--#if (consumerMode == "Development")-->
     <!-- Environment variables are imported as MSBuild properties. This repository's optional
          sibling-checkout convenience lives in Directory.Build.props, which template.json excludes
          from generated games. -->
     <CnaCsRoot Condition="'$(CnaCsRoot)' == '' and '$(CNA_CS_ROOT)' != ''">$(CNA_CS_ROOT)</CnaCsRoot>
+<!--#endif-->
     <FnaFrameworkPath Condition="'$(FnaFrameworkPath)' == '' and '$(FNA_FRAMEWORK_PATH)' != ''">$(FNA_FRAMEWORK_PATH)</FnaFrameworkPath>
   </PropertyGroup>
 
@@ -31,6 +33,7 @@
     <DefineConstants>$(DefineConstants);ENGINE_KNI</DefineConstants>
   </PropertyGroup>
 
+<!--#if (consumerMode == "Development")-->
   <ItemGroup Condition="'$(Engine)' == 'CNA' and '$(CnaCsRoot)' != ''">
     <ProjectReference Include="$(CnaCsRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj" />
   </ItemGroup>
@@ -41,6 +44,13 @@
     <Error Condition="'$(CnaCsRoot)' != '' and !Exists('$(CnaCsRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj')"
            Text="CnaCsRoot='$(CnaCsRoot)' does not contain src/CNA.XnaCompat/CNA.XnaCompat.csproj." />
   </Target>
+<!--#endif-->
+
+<!--#if (consumerMode == "Package")-->
+  <ItemGroup Condition="'$(Engine)' == 'CNA'">
+    <PackageReference Include="CNA.XnaCompat" Version="CnaPackageVersion" />
+  </ItemGroup>
+<!--#endif-->
 
   <ItemGroup Condition="'$(Engine)' == 'MonoGame'">
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />

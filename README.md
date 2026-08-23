@@ -10,6 +10,13 @@ mouse and gamepad input, raw PNG decoding, `Texture2D`, `SpriteBatch`, and a rot
 
 ## Build with CNA
 
+Two explicit consumer modes are supported. Development mode (the default) references a CNA.NET
+source checkout and keeps the fast sibling-project workflow used by contributors. Package mode is
+for isolated acceptance against a local NuGet feed and emits no source-root property or project
+reference.
+
+### Development mode
+
 CNA managed packages and RID-native packages are not published yet. Point the project at a
 `cna-cs` checkout using either a property or an environment variable:
 
@@ -29,6 +36,22 @@ CNA_NATIVE_DIR=/path/to/cna-native-directory dotnet run
 The template repository's sibling `../cna-cs` is discovered by a repository-only
 `Directory.Build.props`. That file is excluded from generated projects: generated games use only
 the explicit property/environment hook and emit a clear MSBuild error if no root is set.
+
+### Package acceptance mode
+
+The packages are not published. Given an acceptance feed produced by `cna-cs`, generate a consumer
+which references only `CNA.XnaCompat` by package ID and version:
+
+```bash
+dotnet new cna-game --name MyPackagedGame \
+  --consumerMode Package --cnaPackageVersion 0.1.0-local.1
+dotnet restore MyPackagedGame --source /path/to/local/feed
+dotnet build MyPackagedGame --no-restore
+```
+
+The RID-native asset, when deliberately included in `CNA.Interop` by the local acceptance harness,
+is resolved beside the built application without `CNA_NATIVE_LIBRARY`, `CNA_NATIVE_DIR`, a sibling
+checkout, or a system-library search.
 
 ## Deterministic runs
 
@@ -52,8 +75,11 @@ CNA_CS_ROOT=/path/to/cna-cs dotnet build MyGame/MyGame.csproj
 ```
 
 `scripts/verify-template.sh` performs an isolated install, generates a fresh project in a temporary
-directory, and builds it. Set `CNA_TEMPLATE_RUN_SMOKE=1` plus `CNA_NATIVE_LIBRARY` or
-`CNA_NATIVE_DIR` to include a 60-frame runtime smoke test.
+directory, and builds it. Its default `--mode development` preserves the source-reference check.
+Use `--mode package --package-feed /path/to/feed --package-version 0.1.0-local.1` for the isolated
+package check. Set `CNA_TEMPLATE_RUN_SMOKE=1` for 60 frames or
+`CNA_TEMPLATE_RUN_STABILITY=1` for 600 frames; package mode needs no native environment override
+when its `CNA.Interop` package contains the qualified RID asset.
 
 ## Portability harness
 

@@ -11,6 +11,25 @@
   "primaryOutputs": [
     { "path": "CnaCsTemplate.csproj" }
   ],
+  "symbols": {
+    "consumerMode": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Development",
+      "description": "Choose source/project-reference development or isolated local-package consumption.",
+      "choices": [
+        { "choice": "Development", "description": "Reference a CNA.NET source checkout." },
+        { "choice": "Package", "description": "Reference CNA.XnaCompat from a configured NuGet feed." }
+      ]
+    },
+    "cnaPackageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "0.1.0-local.1",
+      "description": "CNA.XnaCompat version used in Package consumer mode.",
+      "replaces": "CnaPackageVersion"
+    }
+  },
   "sources": [
     {
       "modifiers": [
