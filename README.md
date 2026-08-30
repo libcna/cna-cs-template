@@ -101,6 +101,24 @@ silent reference to `libs/FNA.dll`. A configured but unloadable managed/native e
 produces an actionable message and exit code 2. A successful alternate-engine build proves source
 compilation; claim runtime support only after running that engine on the target platform.
 
+**`FNA_FRAMEWORK_PATH` must name a .NET-targeting FNA build, not a .NET Framework one.** FNA's
+repository ships four project files, and only `FNA.Core.csproj` produces an assembly a `net8.0` host
+can load. Pointing at the output of `FNA.csproj` builds cleanly and then fails at startup with
+`Game framework dependency could not be loaded: FNA` -- the build references it happily and the
+runtime cannot load it, which is a confusing pair of outcomes and is worth stating rather than
+rediscovering:
+
+```bash
+dotnet build /path/to/FNA/FNA.Core.csproj -c Release
+FNA_FRAMEWORK_PATH=/path/to/FNA/bin/Release/net8.0/FNA.dll dotnet run -p:Engine=FNA -- --frames 600
+```
+
+FNA also needs its native `libFNA3D.so` and SDL2 beside the executable or on the loader path; those
+are FNA's dependencies, not this template's.
+
+Measured on Linux x64: **600 frames on FNA (Vulkan, AMD Radeon 780M) and 600 frames on CNA
+(OPENGLES3)**, from the same game source.
+
 ## License
 
 The template is licensed under the MIT License; see `LICENSE`.
