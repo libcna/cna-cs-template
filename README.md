@@ -110,14 +110,24 @@ rediscovering:
 
 ```bash
 dotnet build /path/to/FNA/FNA.Core.csproj -c Release
-FNA_FRAMEWORK_PATH=/path/to/FNA/bin/Release/net8.0/FNA.dll dotnet run -p:Engine=FNA -- --frames 600
+FNA_FRAMEWORK_PATH=/path/to/FNA/bin/Release/net8.0/FNA.dll \
+  LD_LIBRARY_PATH=/path/to/fnalibs \
+  dotnet run -p:Engine=FNA -- --frames 600
 ```
 
-FNA also needs its native `libFNA3D.so` and SDL2 beside the executable or on the loader path; those
-are FNA's dependencies, not this template's.
+`LD_LIBRARY_PATH` is in that command deliberately. FNA needs its own native `libFNA3D`, SDL and
+FAudio, which are FNA's dependencies rather than this template's -- and without them the run fails
+with a list of `cannot open shared object file` lines naming paths that do not exist, one of which
+is a doubled `liblibFNA3D.so.0`. That is the .NET loader trying every naming convention it knows,
+not a broken build, and it reads like one. Put the libraries beside the executable or on the loader
+path.
 
-Measured on Linux x64: **600 frames on FNA (Vulkan, AMD Radeon 780M) and 600 frames on CNA
-(OPENGLES3)**, from the same game source.
+Measured on Linux x64: **600 frames on FNA (Vulkan, AMD Radeon 780M), 600 frames on CNA over
+OPENGLES3, and 600 frames on CNA over HEADLESS**, from the same game source.
+
+The renderer line prints what the engine calls itself, so on FNA it reports the display adapter's
+description (`Dell Inc. 27"`) rather than a backend name. The template asks the runtime and prints
+the answer; the difference is FNA's, and the template deliberately does not translate it.
 
 ## License
 
