@@ -43,6 +43,18 @@ if [[ "$mode" == package && ( -z "$package_feed" || ! -d "$package_feed" ) ]]; t
   exit 2
 fi
 
+# The checked-in project, before `dotnet new` touches it. This repository is a working game as
+# well as a template, its README says so, and nothing verified it: the template's conditional
+# comments are processed only at generation time, so in the repository both consumer-mode blocks are
+# live at once. That made restore fail with "'CnaPackageVersion' is not a valid version string" --
+# a defect that survived because every check here started by generating a project.
+repository_build_status=skipped
+if [[ "$mode" == development ]]; then
+  "$dotnet_command" build "$template_root/CnaCsTemplate.csproj" -c Release \
+    -p:CnaCsRoot="$cna_root" -m:1
+  repository_build_status=passed
+fi
+
 verification_root=$(mktemp -d)
 trap 'rm -rf "$verification_root"' EXIT
 
@@ -117,6 +129,7 @@ if [[ "${CNA_TEMPLATE_RUN_STABILITY:-0}" == 1 ]]; then
 fi
 
 echo "TEMPLATE_MODE=$mode"
+echo "TEMPLATE_REPOSITORY_BUILD=$repository_build_status"
 echo "TEMPLATE_GENERATED_PROJECT=GeneratedCnaGame/GeneratedCnaGame.csproj"
 echo "TEMPLATE_BUILD=passed"
 echo "TEMPLATE_SOURCE_PATHS=absent"
