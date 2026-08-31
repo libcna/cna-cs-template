@@ -122,8 +122,21 @@ is a doubled `liblibFNA3D.so.0`. That is the .NET loader trying every naming con
 not a broken build, and it reads like one. Put the libraries beside the executable or on the loader
 path.
 
-Measured on Linux x64: **600 frames on FNA (Vulkan, AMD Radeon 780M), 600 frames on CNA over
-OPENGLES3, and 600 frames on CNA over HEADLESS**, from the same game source.
+Measured on Linux x64, all from the same game source: **600 frames on FNA (Vulkan, AMD Radeon
+780M)**, and 600 frames on CNA over each of four renderers.
+
+| CNA renderer | 60 frames | 600 frames | what it exercises here |
+| --- | --- | --- | --- |
+| OPENGLES3 | pass | pass | the full path, 3D cube included |
+| SOFTWARE | pass | pass | a 3D pipeline with no volume textures and no compiled effects |
+| SDL_RENDERER | pass | pass | **the 2D fallback**, and the only renderer that takes it |
+| HEADLESS | pass | pass | the loop and the call sequence, rasterising nothing |
+
+`SDL_RENDERER` is the one worth noting. It reports no `ThreeD` capability, so it is the first
+renderer on which the template's "CNA renderers without a 3D pipeline receive a bouncing 2D
+fallback" sentence is a measurement rather than a promise -- the guarded 3D path is skipped and the
+fallback draws for 600 frames. The template needed no change to run there, which is the point of
+asking the renderer for its capabilities instead of naming renderers.
 
 The renderer line prints what the engine calls itself, so on FNA it reports the display adapter's
 description (`Dell Inc. 27"`) rather than a backend name. The template asks the runtime and prints
