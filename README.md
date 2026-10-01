@@ -74,12 +74,16 @@ dotnet new cna-game --name MyGame
 CNA_CS_ROOT=/path/to/cna-cs dotnet build MyGame/MyGame.csproj
 ```
 
-`scripts/verify-template.sh` performs an isolated install, generates a fresh project in a temporary
-directory, and builds it. Its default `--mode development` preserves the source-reference check.
-Use `--mode package --package-feed /path/to/feed --package-version 0.1.0-local.1` for the isolated
-package check. Set `CNA_TEMPLATE_RUN_SMOKE=1` for 60 frames or
-`CNA_TEMPLATE_RUN_STABILITY=1` for 600 frames; package mode needs no native environment override
-when its `CNA.Interop` package contains the qualified RID asset.
+`scripts/verify-template.sh` performs an isolated install, generates a fresh project and builds it.
+The generated consumer is written to cna-cs's shared `build-consumer/template-<mode>` (or
+`CNA_CONSUMER_ROOT`) -- never `/tmp`, and never inside this template, where `dotnet new` would copy it
+into the next generated game and this repository's `Directory.Build.props` would apply to it. Its
+default `--mode development` preserves the source-reference check. Use
+`--mode package --package-feed /path/to/feed --package-version 0.1.0-local.1` for the isolated
+package check. Set `CNA_TEMPLATE_RUN_SMOKE=1` for 60 frames or `CNA_TEMPLATE_RUN_STABILITY=1` for
+600 frames. Runs go through CNA's private display runner (`../cna/tools/platform/run_gpu_tests_private.sh`,
+or `CNA_ROOT`), never the desktop; development mode needs `CNA_NATIVE_LIBRARY`, package mode must
+load the packaged native asset with no override.
 
 ## Portability harness
 

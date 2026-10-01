@@ -55,8 +55,17 @@ if [[ "$mode" == development ]]; then
   repository_build_status=passed
 fi
 
-verification_root=$(mktemp -d)
-trap 'rm -rf "$verification_root"' EXIT
+# Never /tmp, and never inside this template: `dotnet new` would copy a nested consumer into the
+# next generated game, and MSBuild would apply this repository's Directory.Build.props to it. The
+# generated consumer is a fixture of the binding, so it lives in cna-cs's shared build-consumer/
+# (or CNA_CONSUMER_ROOT) and is replaced on the next run of the same mode.
+consumer_root=${CNA_CONSUMER_ROOT:-${cna_root:+$cna_root/build-consumer}}
+if [[ -z "$consumer_root" ]]; then
+  consumer_root=$(cd "$template_root/../cna-cs" 2>/dev/null && pwd)/build-consumer
+fi
+verification_root="$consumer_root/template-$mode"
+rm -rf "$verification_root"
+mkdir -p "$verification_root"
 
 export DOTNET_CLI_HOME="$verification_root/dotnet-home"
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
@@ -112,12 +121,27 @@ else
   fi
 fi
 
+# Runs happen on CNA's private display (headless Weston + rootful Xwayland on the real GPU), never
+# on the developer's desktop. Development mode needs an explicit native library; package mode must
+# find the packaged one by itself, so the overrides are removed there.
+cna_native_root=${CNA_ROOT:-"$template_root/../cna"}
+private_runner="$cna_native_root/tools/platform/run_gpu_tests_private.sh"
 run_generated()
 {
-  if [[ "$(uname -s)" == Linux && -z "${DISPLAY:-}" ]] && command -v xvfb-run >/dev/null 2>&1; then
-    xvfb-run -a "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
+  if [[ ! -x "$private_runner" ]]; then
+    echo "Running the generated game needs $private_runner (set CNA_ROOT)." >&2
+    exit 2
+  fi
+  if [[ "$mode" == package ]]; then
+    env -u CNA_NATIVE_LIBRARY -u CNA_NATIVE_DIR SDL_AUDIODRIVER=dummy \
+      "$private_runner" --exec "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
   else
-    "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
+    if [[ -z "${CNA_NATIVE_LIBRARY:-}${CNA_NATIVE_DIR:-}" ]]; then
+      echo "Development-mode runs need CNA_NATIVE_LIBRARY or CNA_NATIVE_DIR." >&2
+      exit 2
+    fi
+    SDL_AUDIODRIVER=dummy \
+      "$private_runner" --exec "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
   fi
 }
 
