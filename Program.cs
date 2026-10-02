@@ -6,7 +6,7 @@ namespace CnaCsTemplate;
 public static class Program
 {
     [STAThread]
-    static int Main(string[] args)
+    internal static int Main(string[] args)
     {
         try
         {

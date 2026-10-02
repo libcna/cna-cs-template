@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The game on Android: the same sources and Content as ../../CnaCsTemplate.csproj, in SDL's activity
+    with CNA.NET's Android host (cna-cs eng/android). Needs the .NET 11 SDK with the android workload,
+    the Android SDK and NDK, and the libraries cna-cs's scripts/Build-AndroidNative.sh stages. A
+    development consumer: CnaCsRoot or CNA_CS_ROOT names the cna-cs checkout.
+
+      dotnet build Platforms/Android -c Release -t:Install    # onto the running emulator or device
+  -->
+  <PropertyGroup>
+    <TargetFramework>net11.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>CnaCsTemplate</AssemblyName>
+    <RootNamespace>CnaCsTemplate</RootNamespace>
+    <ApplicationTitle>CnaCsTemplate</ApplicationTitle>
+    <ApplicationId>com.example.$([System.Text.RegularExpressions.Regex]::Replace($(AssemblyName.ToLowerInvariant()), '[^a-z0-9]', ''))</ApplicationId>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">android-x64</RuntimeIdentifier>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AndroidResgenNamespace>CnaAndroidResources</AndroidResgenNamespace>
+    <DefineConstants>$(DefineConstants);ENGINE_CNA</DefineConstants>
+    <CnaCsRoot Condition="'$(CnaCsRoot)' == '' and '$(CNA_CS_ROOT)' != ''">$(CNA_CS_ROOT)</CnaCsRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../*.cs" />
+    <Compile Include="GameApplication.cs" />
+    <ProjectReference Include="$(CnaCsRoot)/src/CNA.XnaCompat/CNA.XnaCompat.csproj" />
+    <!-- Extracted beside the game on the device by CnaGameApplication before Main runs. -->
+    <AndroidAsset Include="../../Content/**" Link="Assets/Content/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <Import Project="$(CnaCsRoot)/src/CNA.XnaCompat/build/CNA.XnaCompat.targets" Condition="'$(CnaCsRoot)' != ''" />
+  <Import Project="$(CnaCsRoot)/eng/android/CNA.Android.targets" Condition="'$(CnaCsRoot)' != ''" />
+
+  <Target Name="ValidateCnaReference" BeforeTargets="ResolveProjectReferences">
+    <Error Condition="'$(CnaCsRoot)' == ''" Text="Set CNA_CS_ROOT or pass -p:CnaCsRoot=/path/to/cna-cs." />
+  </Target>
+
+</Project>

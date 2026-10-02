@@ -1,7 +1,11 @@
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "openeggbert",
-  "classifications": ["Games", "CNA", "XNA"],
+  "classifications": [
+    "Games",
+    "CNA",
+    "XNA"
+  ],
   "identity": "OpenEggbert.CNA.Game.CSharp",
   "name": "CNA C# XNA-style game",
   "shortName": "cna-game",
@@ -9,7 +13,9 @@
   "preferNameDirectory": true,
   "description": "A native-CNA-backed C# game with portable XNA-style game code.",
   "primaryOutputs": [
-    { "path": "CnaCsTemplate.csproj" }
+    {
+      "path": "CnaCsTemplate.csproj"
+    }
   ],
   "symbols": {
     "consumerMode": {
@@ -18,8 +24,14 @@
       "defaultValue": "Development",
       "description": "Choose source/project-reference development or isolated local-package consumption.",
       "choices": [
-        { "choice": "Development", "description": "Reference a CNA.NET source checkout." },
-        { "choice": "Package", "description": "Reference CNA.XnaCompat from a configured NuGet feed." }
+        {
+          "choice": "Development",
+          "description": "Reference a CNA.NET source checkout."
+        },
+        {
+          "choice": "Package",
+          "description": "Reference CNA.XnaCompat from a configured NuGet feed."
+        }
       ]
     },
     "cnaPackageVersion": {
@@ -33,7 +45,24 @@
   "sources": [
     {
       "modifiers": [
-        { "exclude": [".git/**", "bin/**", "obj/**", "Directory.Build.props", "scripts/**"] }
+        {
+          "exclude": [
+            ".git/**",
+            "bin/**",
+            "obj/**",
+            "**/bin/**",
+            "**/obj/**",
+            "Directory.Build.props",
+            "scripts/**",
+            "Platforms/Browser/wwwroot/Content/**"
+          ]
+        },
+        {
+          "condition": "(consumerMode == \"Package\")",
+          "exclude": [
+            "Platforms/**"
+          ]
+        }
       ]
     }
   ]

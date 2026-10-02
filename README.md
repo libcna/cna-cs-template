@@ -53,6 +53,26 @@ The RID-native asset, when deliberately included in `CNA.Interop` by the local a
 is resolved beside the built application without `CNA_NATIVE_LIBRARY`, `CNA_NATIVE_DIR`, a sibling
 checkout, or a system-library search.
 
+## In a browser and on Android
+
+`Platforms/Browser` and `Platforms/Android` build the same game -- the same `.cs` files and `Content/`
+-- for CNA.NET's WebAssembly and Android hosts. Both are development consumers (`CNA_CS_ROOT` or
+`-p:CnaCsRoot=...`) and need the .NET 11 SDK with its `wasm-tools` or `android` workload, plus the
+native CNA build that cna-cs stages for that platform:
+
+```bash
+# browser: cna-cs scripts/Build-BrowserNative.sh first; CNA is linked into dotnet.native.wasm
+dotnet publish Platforms/Browser -c Release
+#   serve bin/Release/net11.0/publish/wwwroot over HTTP and open it
+
+# Android: cna-cs scripts/Build-AndroidNative.sh first (x86_64 by default; --abi arm64-v8a)
+dotnet build Platforms/Android -c Release -t:Install    # onto the running emulator or device
+```
+
+On Android, `Content/` is packaged as assets and extracted beside the game before `Main` runs; in a
+browser it is in the page's file system. A browser game runs on the page's single thread, so a game
+that starts threads of its own is not for this head.
+
 ## Deterministic runs
 
 ```bash

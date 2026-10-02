@@ -14,6 +14,7 @@ out/
 *.suo
 
 # Project specific
+Platforms/Browser/wwwroot/Content/
 Content/bin/
 Content/obj/
 

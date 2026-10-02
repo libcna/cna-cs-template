@@ -92,6 +92,11 @@
     <PackageReference Include="nkast.Kni.Platform.SDL2.GL" Version="4.2.9001.1" />
   </ItemGroup>
 
+  <!-- The browser and Android heads (Platforms/) compile these same sources in their own projects. -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Platforms/**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Update="Content\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
