@@ -4,6 +4,13 @@ This is both a small CNA-backed game and an installable `dotnet new` template. T
 the `Microsoft.Xna.Framework` API supplied by `CNA.XnaCompat`; the one engine-specific capability
 query is isolated in `EngineDiagnostics.cs`.
 
+The complete source-build and migration guide for XNA 4.0, FNA and MonoGame projects is
+[`cna-cs/docs/migrating-xna-games.md`](https://github.com/libcna/cna-cs/blob/develop/docs/migrating-xna-games.md).
+CNA and CNA.NET are
+currently beta and source-first: official downloadable native binaries and published managed
+packages do not exist yet. A stabilization phase is expected to begin in January 2027; that is a
+roadmap expectation, not a promised binary-release date.
+
 The sample exercises the game lifecycle, graphics-device management, resize handling, keyboard,
 mouse and gamepad input, raw PNG decoding, `Texture2D`, `SpriteBatch`, and a rotating
 `BasicEffect` cube. CNA renderers without a 3D pipeline receive a bouncing 2D fallback.

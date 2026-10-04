@@ -12,6 +12,10 @@
   "sourceName": "CnaCsTemplate",
   "preferNameDirectory": true,
   "description": "A native-CNA-backed C# game with portable XNA-style game code.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
   "primaryOutputs": [
     {
       "path": "CnaCsTemplate.csproj"
