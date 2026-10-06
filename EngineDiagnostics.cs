@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using CNA.XnaCompat.Extensions;
 #endif
 
-namespace CnaCsTemplate;
+namespace CnaDotnetTemplate;
 
 /// <summary>Keeps engine-specific diagnostics outside the portable game implementation.</summary>
 internal static class EngineDiagnostics

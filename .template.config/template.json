@@ -7,18 +7,18 @@
     "XNA"
   ],
   "identity": "OpenEggbert.CNA.Game.CSharp",
-  "name": "CNA C# XNA-style game",
+  "name": "CNA.NET XNA-style game",
   "shortName": "cna-game",
-  "sourceName": "CnaCsTemplate",
+  "sourceName": "CnaDotnetTemplate",
   "preferNameDirectory": true,
-  "description": "A native-CNA-backed C# game with portable XNA-style game code.",
+  "description": "A native-CNA-backed CNA.NET game with portable XNA-style game code.",
   "tags": {
     "language": "C#",
     "type": "project"
   },
   "primaryOutputs": [
     {
-      "path": "CnaCsTemplate.csproj"
+      "path": "CnaDotnetTemplate.csproj"
     }
   ],
   "symbols": {

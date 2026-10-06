@@ -5,7 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>CnaCsTemplate</RootNamespace>
+    <RootNamespace>CnaDotnetTemplate</RootNamespace>
 
     <!-- CNA is the product default. The other values keep this repository useful as a source
          portability harness; generated games can delete the unused conditional groups. -->
@@ -29,7 +29,7 @@
     <!-- Environment variables are imported as MSBuild properties. This repository's optional
          sibling-checkout convenience lives in Directory.Build.props, which template.json excludes
          from generated games. -->
-    <CnaCsRoot Condition="'$(CnaCsRoot)' == '' and '$(CNA_CS_ROOT)' != ''">$(CNA_CS_ROOT)</CnaCsRoot>
+    <CnaDotnetRoot Condition="'$(CnaDotnetRoot)' == '' and '$(CNA_DOTNET_ROOT)' != ''">$(CNA_DOTNET_ROOT)</CnaDotnetRoot>
 <!--#endif-->
     <FnaFrameworkPath Condition="'$(FnaFrameworkPath)' == '' and '$(FNA_FRAMEWORK_PATH)' != ''">$(FNA_FRAMEWORK_PATH)</FnaFrameworkPath>
   </PropertyGroup>
@@ -48,16 +48,16 @@
   </PropertyGroup>
 
 <!--#if (consumerMode == "Development")-->
-  <ItemGroup Condition="'$(Engine)' == 'CNA' and '$(CnaConsumerMode)' == 'Development' and '$(CnaCsRoot)' != ''">
-    <ProjectReference Include="$(CnaCsRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj" />
+  <ItemGroup Condition="'$(Engine)' == 'CNA' and '$(CnaConsumerMode)' == 'Development' and '$(CnaDotnetRoot)' != ''">
+    <ProjectReference Include="$(CnaDotnetRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj" />
   </ItemGroup>
 
   <Target Name="ValidateCnaReference" BeforeTargets="ResolveProjectReferences"
           Condition="'$(Engine)' == 'CNA' and '$(CnaConsumerMode)' == 'Development'">
-    <Error Condition="'$(CnaCsRoot)' == ''"
-           Text="CNA.XnaCompat was not found. Set CNA_CS_ROOT or pass -p:CnaCsRoot=/path/to/cna-cs." />
-    <Error Condition="'$(CnaCsRoot)' != '' and !Exists('$(CnaCsRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj')"
-           Text="CnaCsRoot='$(CnaCsRoot)' does not contain src/CNA.XnaCompat/CNA.XnaCompat.csproj." />
+    <Error Condition="'$(CnaDotnetRoot)' == ''"
+           Text="CNA.XnaCompat was not found. Set CNA_DOTNET_ROOT or pass -p:CnaDotnetRoot=/path/to/cna-dotnet." />
+    <Error Condition="'$(CnaDotnetRoot)' != '' and !Exists('$(CnaDotnetRoot)\src\CNA.XnaCompat\CNA.XnaCompat.csproj')"
+           Text="CnaDotnetRoot='$(CnaDotnetRoot)' does not contain src/CNA.XnaCompat/CNA.XnaCompat.csproj." />
   </Target>
 <!--#endif-->
 

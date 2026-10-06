@@ -1,6 +1,6 @@
 <Project>
   <!-- Repository-only convenience. .template.config excludes this file from generated games. -->
   <PropertyGroup>
-    <CnaCsRoot Condition="'$(CnaCsRoot)' == '' and Exists('$(MSBuildThisFileDirectory)..\cna-cs\src\CNA.XnaCompat\CNA.XnaCompat.csproj')">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\cna-cs'))</CnaCsRoot>
+    <CnaDotnetRoot Condition="'$(CnaDotnetRoot)' == '' and Exists('$(MSBuildThisFileDirectory)..\cna-dotnet\src\CNA.XnaCompat\CNA.XnaCompat.csproj')">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\cna-dotnet'))</CnaDotnetRoot>
   </PropertyGroup>
 </Project>

@@ -33,9 +33,9 @@ if [[ "$mode" != development && "$mode" != package ]]; then
   exit 2
 fi
 
-cna_root=${CNA_CS_ROOT:-$(cd "$template_root/../cna-cs" 2>/dev/null && pwd || true)}
+cna_root=${CNA_DOTNET_ROOT:-$(cd "$template_root/../cna-dotnet" 2>/dev/null && pwd || true)}
 if [[ "$mode" == development && ( -z "$cna_root" || ! -f "$cna_root/src/CNA.XnaCompat/CNA.XnaCompat.csproj" ) ]]; then
-  echo "Development mode requires CNA_CS_ROOT to identify a cna-cs checkout." >&2
+  echo "Development mode requires CNA_DOTNET_ROOT to identify a cna-dotnet checkout." >&2
   exit 2
 fi
 if [[ "$mode" == package && ( -z "$package_feed" || ! -d "$package_feed" ) ]]; then
@@ -50,18 +50,18 @@ fi
 # a defect that survived because every check here started by generating a project.
 repository_build_status=skipped
 if [[ "$mode" == development ]]; then
-  "$dotnet_command" build "$template_root/CnaCsTemplate.csproj" -c Release \
-    -p:CnaCsRoot="$cna_root" -m:1
+  "$dotnet_command" build "$template_root/CnaDotnetTemplate.csproj" -c Release \
+    -p:CnaDotnetRoot="$cna_root" -m:1
   repository_build_status=passed
 fi
 
 # Never /tmp, and never inside this template: `dotnet new` would copy a nested consumer into the
 # next generated game, and MSBuild would apply this repository's Directory.Build.props to it. The
-# generated consumer is a fixture of the binding, so it lives in cna-cs's shared build-consumer/
+# generated consumer is a fixture of the binding, so it lives in cna-dotnet's shared build-consumer/
 # (or CNA_CONSUMER_ROOT) and is replaced on the next run of the same mode.
 consumer_root=${CNA_CONSUMER_ROOT:-${cna_root:+$cna_root/build-consumer}}
 if [[ -z "$consumer_root" ]]; then
-  consumer_root=$(cd "$template_root/../cna-cs" 2>/dev/null && pwd)/build-consumer
+  consumer_root=$(cd "$template_root/../cna-dotnet" 2>/dev/null && pwd)/build-consumer
 fi
 verification_root="$consumer_root/template-$mode"
 rm -rf "$verification_root"
@@ -86,7 +86,7 @@ if [[ -e "$generated_root/Directory.Build.props" || -d "$generated_root/scripts"
   echo "Generated output contains repository-only template infrastructure." >&2
   exit 1
 fi
-if rg -n -F '..\cna-cs' "$generated_project"; then
+if rg -n -F '..\cna-dotnet' "$generated_project"; then
   echo "Generated project contains a repository-specific sibling path." >&2
   exit 1
 fi
@@ -96,9 +96,9 @@ if [[ "$mode" == development ]]; then
     echo "Development-mode output is missing its CNA project reference." >&2
     exit 1
   fi
-  "$dotnet_command" build "$generated_project" -p:CnaCsRoot="$cna_root" -m:1
+  "$dotnet_command" build "$generated_project" -p:CnaDotnetRoot="$cna_root" -m:1
 else
-  if rg -n 'CnaCsRoot|CNA_CS_ROOT|ProjectReference' "$generated_project"; then
+  if rg -n 'CnaDotnetRoot|CNA_DOTNET_ROOT|ProjectReference' "$generated_project"; then
     echo "Package-mode output contains a source/project-reference path." >&2
     exit 1
   fi

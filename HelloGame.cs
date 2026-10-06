@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace CnaCsTemplate;
+namespace CnaDotnetTemplate;
 
 public class HelloGame : Game
 {
@@ -33,7 +33,7 @@ public class HelloGame : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         _frameLimit = frameLimit;
-        Window.Title = "cna-cs-template - HelloGame";
+        Window.Title = "CNA.NET template - HelloGame";
         Window.AllowUserResizing = true;
         Window.ClientSizeChanged += OnClientSizeChanged;
     }
@@ -50,7 +50,7 @@ public class HelloGame : Game
         _rendererName = capabilities.RendererName;
         _supports3D = capabilities.Supports3D;
         _supportsDepth = capabilities.SupportsDepth;
-        Window.Title = $"cna-cs-template - HelloGame ({_rendererName})";
+        Window.Title = $"CNA.NET template - HelloGame ({_rendererName})";
 
         if (_supports3D)
         {
@@ -77,7 +77,7 @@ public class HelloGame : Game
 
     private void ReportRendererCapabilities()
     {
-        Console.WriteLine($"cna-cs-template: renderer {_rendererName}");
+        Console.WriteLine($"CNA.NET template: renderer {_rendererName}");
         Console.WriteLine($"  3D pipeline     : {(_supports3D ? "yes" : "no (2D only)")}");
         Console.WriteLine($"  depth/stencil   : {(_supportsDepth ? "yes" : "no")}");
         Console.WriteLine($"  max texture size: {GetMaxTextureDimension()}");
@@ -148,7 +148,7 @@ public class HelloGame : Game
 
         if (_frameLimit is int limit && ++_drawnFrames >= limit)
         {
-            Console.WriteLine($"cna-cs-template: smoke test drew {_drawnFrames} frames; exiting");
+            Console.WriteLine($"CNA.NET template: smoke test drew {_drawnFrames} frames; exiting");
             Exit();
         }
     }

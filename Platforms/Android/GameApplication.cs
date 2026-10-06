@@ -1,4 +1,4 @@
-namespace CnaCsTemplate;
+namespace CnaDotnetTemplate;
 
 /// <summary>The Android application: CNA.NET's host runs the game's own Main on SDL's thread.</summary>
 [Android.App.Application]

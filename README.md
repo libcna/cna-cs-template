@@ -1,11 +1,11 @@
-# CNA C# game template
+# CNA.NET game template
 
 This is both a small CNA-backed game and an installable `dotnet new` template. The game code uses
 the `Microsoft.Xna.Framework` API supplied by `CNA.XnaCompat`; the one engine-specific capability
 query is isolated in `EngineDiagnostics.cs`.
 
 The complete source-build and migration guide for XNA 4.0, FNA and MonoGame projects is
-[`cna-cs/docs/migrating-xna-games.md`](https://github.com/libcna/cna-cs/blob/develop/docs/migrating-xna-games.md).
+[`cna-dotnet/docs/migrating-xna-games.md`](https://github.com/libcna/cna-dotnet/blob/develop/docs/migrating-xna-games.md).
 CNA and CNA.NET are
 currently beta and source-first: official downloadable native binaries and published managed
 packages do not exist yet. A stabilization phase is expected to begin in January 2027; that is a
@@ -25,11 +25,11 @@ reference.
 ### Development mode
 
 CNA managed packages and RID-native packages are not published yet. Point the project at a
-`cna-cs` checkout using either a property or an environment variable:
+`cna-dotnet` checkout using either a property or an environment variable:
 
 ```bash
-CNA_CS_ROOT=/path/to/cna-cs dotnet build
-dotnet build -p:CnaCsRoot=/path/to/cna-cs
+CNA_DOTNET_ROOT=/path/to/cna-dotnet dotnet build
+dotnet build -p:CnaDotnetRoot=/path/to/cna-dotnet
 ```
 
 At runtime, put the CNA C ABI library next to the executable or configure it explicitly:
@@ -40,13 +40,13 @@ CNA_NATIVE_LIBRARY=/path/to/libcna_c_api.so dotnet run
 CNA_NATIVE_DIR=/path/to/cna-native-directory dotnet run
 ```
 
-The template repository's sibling `../cna-cs` is discovered by a repository-only
+The template repository's sibling `../cna-dotnet` is discovered by a repository-only
 `Directory.Build.props`. That file is excluded from generated projects: generated games use only
 the explicit property/environment hook and emit a clear MSBuild error if no root is set.
 
 ### Package acceptance mode
 
-The packages are not published. Given an acceptance feed produced by `cna-cs`, generate a consumer
+The packages are not published. Given an acceptance feed produced by `cna-dotnet`, generate a consumer
 which references only `CNA.XnaCompat` by package ID and version:
 
 ```bash
@@ -63,16 +63,16 @@ checkout, or a system-library search.
 ## In a browser and on Android
 
 `Platforms/Browser` and `Platforms/Android` build the same game -- the same `.cs` files and `Content/`
--- for CNA.NET's WebAssembly and Android hosts. Both are development consumers (`CNA_CS_ROOT` or
-`-p:CnaCsRoot=...`) and need the .NET 11 SDK with its `wasm-tools` or `android` workload, plus the
-native CNA build that cna-cs stages for that platform:
+-- for CNA.NET's WebAssembly and Android hosts. Both are development consumers (`CNA_DOTNET_ROOT` or
+`-p:CnaDotnetRoot=...`) and need the .NET 11 SDK with its `wasm-tools` or `android` workload, plus the
+native CNA build that cna-dotnet stages for that platform:
 
 ```bash
-# browser: cna-cs scripts/Build-BrowserNative.sh first; CNA is linked into dotnet.native.wasm
+# browser: cna-dotnet scripts/Build-BrowserNative.sh first; CNA is linked into dotnet.native.wasm
 dotnet publish Platforms/Browser -c Release
 #   serve bin/Release/net11.0/publish/wwwroot over HTTP and open it
 
-# Android: cna-cs scripts/Build-AndroidNative.sh first (x86_64 by default; --abi arm64-v8a)
+# Android: cna-dotnet scripts/Build-AndroidNative.sh first (x86_64 by default; --abi arm64-v8a)
 dotnet build Platforms/Android -c Release -t:Install    # onto the running emulator or device
 ```
 
@@ -96,13 +96,13 @@ a managed build alone is not recorded as a runtime pass.
 ## Install as a `dotnet new` template
 
 ```bash
-dotnet new install /path/to/cna-cs-template
+dotnet new install /path/to/cna-dotnet-template
 dotnet new cna-game --name MyGame
-CNA_CS_ROOT=/path/to/cna-cs dotnet build MyGame/MyGame.csproj
+CNA_DOTNET_ROOT=/path/to/cna-dotnet dotnet build MyGame/MyGame.csproj
 ```
 
 `scripts/verify-template.sh` performs an isolated install, generates a fresh project and builds it.
-The generated consumer is written to cna-cs's shared `build-consumer/template-<mode>` (or
+The generated consumer is written to cna-dotnet's shared `build-consumer/template-<mode>` (or
 `CNA_CONSUMER_ROOT`) -- never `/tmp`, and never inside this template, where `dotnet new` would copy it
 into the next generated game and this repository's `Directory.Build.props` would apply to it. Its
 default `--mode development` preserves the source-reference check. Use
