@@ -92,6 +92,22 @@ if grep -n -F '..\cna-dotnet' "$generated_project"; then
   exit 1
 fi
 
+# `dotnet new` evaluates C# #if lines as template conditions unless a file opts out, and a symbol
+# the template does not define is false: every generated game lost EngineDiagnostics.cs's CNA
+# branch, and with it the renderer name and the 2D-only answer (CNA plans/plan_apple_m4.md AM4-230).
+# A file keeps them by //-:cnd:noEmit ... //+:cnd:noEmit, which generation removes; no comment there
+# may spell the directives out, because the engine reads them inside comments too. Each
+# preprocessor directive in the repository's sources must reach the generated game.
+for source in "$template_root"/*.cs; do
+  name=$(basename "$source")
+  expected=$(grep -c -E '^[[:space:]]*#(if|elif|else|endif)' "$source" || true)
+  actual=$(grep -c -E '^[[:space:]]*#(if|elif|else|endif)' "$generated_root/$name" || true)
+  if [[ "$expected" != "$actual" ]]; then
+    echo "Generated $name kept $actual of its $expected preprocessor directives." >&2
+    exit 1
+  fi
+done
+
 if [[ "$mode" == development ]]; then
   if ! grep -q '<ProjectReference ' "$generated_project"; then
     echo "Development-mode output is missing its CNA project reference." >&2

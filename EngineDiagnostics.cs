@@ -1,3 +1,4 @@
+//-:cnd:noEmit
 using Microsoft.Xna.Framework.Graphics;
 #if ENGINE_CNA
 using CNA.XnaCompat.Extensions;
@@ -23,3 +24,4 @@ internal static class EngineDiagnostics
 #endif
     }
 }
+//+:cnd:noEmit
