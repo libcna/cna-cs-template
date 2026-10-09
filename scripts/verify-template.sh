@@ -86,23 +86,24 @@ if [[ -e "$generated_root/Directory.Build.props" || -d "$generated_root/scripts"
   echo "Generated output contains repository-only template infrastructure." >&2
   exit 1
 fi
-if rg -n -F '..\cna-dotnet' "$generated_project"; then
+# grep rather than rg, which a macOS host does not ship (CNA plans/plan_apple_m4.md AM4-226).
+if grep -n -F '..\cna-dotnet' "$generated_project"; then
   echo "Generated project contains a repository-specific sibling path." >&2
   exit 1
 fi
 
 if [[ "$mode" == development ]]; then
-  if ! rg -q '<ProjectReference ' "$generated_project"; then
+  if ! grep -q '<ProjectReference ' "$generated_project"; then
     echo "Development-mode output is missing its CNA project reference." >&2
     exit 1
   fi
   "$dotnet_command" build "$generated_project" -p:CnaDotnetRoot="$cna_root" -m:1
 else
-  if rg -n 'CnaDotnetRoot|CNA_DOTNET_ROOT|ProjectReference' "$generated_project"; then
+  if grep -n -E 'CnaDotnetRoot|CNA_DOTNET_ROOT|ProjectReference' "$generated_project"; then
     echo "Package-mode output contains a source/project-reference path." >&2
     exit 1
   fi
-  if ! rg -q "<PackageReference Include=\"CNA.XnaCompat\" Version=\"$package_version\"" "$generated_project"; then
+  if ! grep -q -F "<PackageReference Include=\"CNA.XnaCompat\" Version=\"$package_version\"" "$generated_project"; then
     echo "Package-mode output does not reference the requested CNA.XnaCompat version." >&2
     exit 1
   fi
@@ -115,7 +116,7 @@ else
     --packages "$verification_root/packages"
   "$dotnet_command" build "$generated_project" --no-restore -m:1
 
-  if rg -n -F "$cna_root" "$generated_root" -g '*.csproj' -g 'project.assets.json'; then
+  if grep -r -n -F --include='*.csproj' --include='project.assets.json' "$cna_root" "$generated_root"; then
     echo "Package-mode generated consumer retains a path to the CNA.NET source checkout." >&2
     exit 1
   fi
@@ -124,24 +125,33 @@ fi
 # Runs happen on CNA's private display (headless Weston + rootful Xwayland on the real GPU), never
 # on the developer's desktop. Development mode needs an explicit native library; package mode must
 # find the packaged one by itself, so the overrides are removed there.
+#
+# macOS has no Weston (CNA plans/plan_apple_m4.md AM4-226). There the run stays off the desktop by
+# SDL's dummy video driver, which a windowless CNA renderer (SOFTWARE, SDL_RENDERER) draws under; a
+# renderer that needs a real window refuses there by name rather than opening one on the desktop.
 cna_native_root=${CNA_ROOT:-"$template_root/../cna"}
 private_runner="$cna_native_root/tools/platform/run_gpu_tests_private.sh"
+if [[ "$(uname -s)" == Darwin ]]; then
+  private_runner_command=(env SDL_VIDEODRIVER=dummy)
+else
+  private_runner_command=("$private_runner" --exec)
+fi
 run_generated()
 {
-  if [[ ! -x "$private_runner" ]]; then
+  if [[ "$(uname -s)" != Darwin && ! -x "$private_runner" ]]; then
     echo "Running the generated game needs $private_runner (set CNA_ROOT)." >&2
     exit 2
   fi
   if [[ "$mode" == package ]]; then
     env -u CNA_NATIVE_LIBRARY -u CNA_NATIVE_DIR SDL_AUDIODRIVER=dummy \
-      "$private_runner" --exec "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
+      "${private_runner_command[@]}" "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
   else
     if [[ -z "${CNA_NATIVE_LIBRARY:-}${CNA_NATIVE_DIR:-}" ]]; then
       echo "Development-mode runs need CNA_NATIVE_LIBRARY or CNA_NATIVE_DIR." >&2
       exit 2
     fi
     SDL_AUDIODRIVER=dummy \
-      "$private_runner" --exec "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
+      "${private_runner_command[@]}" "$dotnet_command" run --project "$generated_project" --no-build -- "$@"
   fi
 }
 
