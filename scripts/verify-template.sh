@@ -116,7 +116,11 @@ else
     --packages "$verification_root/packages"
   "$dotnet_command" build "$generated_project" --no-restore -m:1
 
-  if grep -r -n -F --include='*.csproj' --include='project.assets.json' "$cna_root" "$generated_root"; then
+  # The checkout's *source* tree, not the checkout: the generated consumer itself lives in its
+  # build-consumer/, so every path in project.assets.json starts with the checkout root. rg skipped
+  # that git-ignored directory, which left this check with nothing to read; grep reads it, and a
+  # source reference is what would name src/.
+  if grep -r -n -F --include='*.csproj' --include='project.assets.json' "$cna_root/src/" "$generated_root"; then
     echo "Package-mode generated consumer retains a path to the CNA.NET source checkout." >&2
     exit 1
   fi
